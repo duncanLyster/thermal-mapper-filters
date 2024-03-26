@@ -1,64 +1,84 @@
 {
     "filters": [
         {
-            "filter_index": 1,
+            "filter_number": 1,
+            "filter_name": "Ge 7um",
             "tdi_pixels": 100
         },
         {
-            "filter_index": 2,
-            "tdi_pixels":100
+            "filter_number": 2,
+            "filter_name": "Ge 7.25um",
+            "tdi_pixels": 100
         },
         {
-            "filter_index": 3,
-            "tdi_pixels":100
+            "filter_number": 3,
+            "filter_name": "Ge 7.5um",
+            "tdi_pixels": 100
         },
         {
-            "filter_index": 4,
-            "tdi_pixels":100
+            "filter_number": 4,
+            "filter_name": "Ge 7.8um",
+            "tdi_pixels": 100
         },
         {
-            "filter_index": 5,
-            "tdi_pixels":100
+            "filter_number": 5,
+            "filter_name": "Ge 8um",
+            "tdi_pixels": 100
         },
         {
-            "filter_index": 6,
-            "tdi_pixels":100
+            "filter_number": 6,
+            "filter_name": "Ge 8.28um",
+            "tdi_pixels": 100
         },
         {
-            "filter_index": 7,
-            "tdi_pixels":100
+            "filter_number": 7,
+            "filter_name": "Ge 8.55um",
+            "tdi_pixels": 100
         },
         {
-            "filter_index": 8,
-            "tdi_pixels":100
+            "filter_number": 8,
+            "filter_name": "Ge 8.75um",
+            "tdi_pixels": 100
         },
         {
-            "filter_index": 9,
-            "tdi_pixels":100
+            "filter_number": 9,
+            "filter_name": "Ge 9um",
+            "tdi_pixels": 100
         },
         {
-            "filter_index": 10,
-            "tdi_pixels":100
+            "filter_number": 10,
+            "filter_name": "Ge 9.5um",
+            "tdi_pixels": 100
         },
         {
-            "filter_index": 11,
-            "tdi_pixels":100
+            "filter_number": 11,
+            "filter_name": "Ge 10um",
+            "tdi_pixels": 100
         },
         {
-            "filter_index": 12,
-            "tdi_pixels":100
+            "filter_number": 12,
+            "filter_name": "ZnS 6.25-12.5um",
+            "tdi_pixels": 100
         },
         {
-            "filter_index": 13,
-            "tdi_pixels":100
+            "filter_number": 13,
+            "filter_name": "CdTe 12.5-25um",
+            "tdi_pixels": 100
         },
         {
-            "filter_index": 14,
-            "tdi_pixels":100
+            "filter_number": 14,
+            "filter_name": "Mesh 25-50um",
+            "tdi_pixels": 100
         },
         {
-            "filter_index": 15,
-            "tdi_pixels":100
+            "filter_number": 15,
+            "filter_name": "Mesh 50-100um",
+            "tdi_pixels": 100
+        },
+        {
+            "filter_number": 16,
+            "filter_name": "Unfiltered",
+            "tdi_pixels": 100
         }
     ]
 }
