@@ -6,6 +6,9 @@ It then calculates the filter transmission for each filter assembly, and signal-
 
 import numpy as np
 import json
+import pandas as pd
+import matplotlib.pyplot as plt
+    
 
 # Initalise global variables (to be assigned later by the model parameters file)
 wavenumber_min = None
@@ -47,8 +50,32 @@ def main():
     # Load the model parameters
     load_and_assign_model_parameters("instrument.json")
 
-    # Load the filter assembly configuration from filter_assembly.json, filter transmission data from filter_transmission.csv and assign to Filter objects
-    filter_assemblies = []
+    # Load the filter assembly configuration from filter_assembly.json, assign to Filter objects
+    filter_assembly = []
+    with open("test_assembly.json", "r") as file:
+        filter_assembly_config = json.load(file)
+        for i, filter_data in enumerate(filter_assembly_config["filters"]):
+            filter_assembly.append(Filter(i + 1, filter_data))
+
+    # Print out the number of filters in the filter assembly
+    print(f"Number of filters in filter assembly: {len(filter_assembly)}")
+
+    # Preload the filter transmission data once
+    df = pd.read_csv("filter_transmission.csv", skiprows=1)
+
+    # Load the filter transmission data from the file filter_transmission.csv and assign to Filter objects
+    for filter in filter_assembly:
+        filter.transmission = df.iloc[:, filter.index].values
+
+    # Plot the filter transmission data
+    for filter in filter_assembly:
+        plt.plot(df.iloc[:, 0], filter.transmission, label=f"Filter {filter.index}")
+
+    # plt.xlabel("Wavelength (nm)")
+    # plt.ylabel("Transmission")
+    # plt.legend()
+    # plt.show()
+
 
 # Call the main program to start execution
 if __name__ == "__main__":
