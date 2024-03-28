@@ -96,7 +96,7 @@ def main():
     # Load filter assemblies
     assemblies = load_filter_assemblies("assemblies.json")
 
-    scene_temperature = 270
+    scene_temperature = 180
     scene_emissivity = 0.7
 
     # Preload the filter transmission data once
@@ -110,7 +110,7 @@ def main():
     for assembly in assemblies:
         filter_assembly = []
 
-        print(f"\n{assembly['assembly_name']}")
+        print(f"\n{assembly['assembly_name']} at {scene_temperature}K\n{'-'*50}")
 
         # Create Filter objects for each filter in the current assembly
         for filter_data in assembly["filters"]:
@@ -131,6 +131,19 @@ def main():
             filter_obj.integrated_transmission = np.trapz(filter_obj.transmission * scene_radiance, wavelength_array)
             filter_obj.signal_to_noise = SNR_factor * (pixel_integration_time * filter_obj.tdi_pixels)**0.5 * filter_obj.integrated_transmission
             print(f"Filter {filter_obj.number:<4} {filter_obj.name:<20} {filter_obj.tdi_pixels:<3} px wide   SNR: {filter_obj.signal_to_noise:<.2f}")
+
+        # Plot the filter transmission for the current assembly with the normalised blackbody spectrum at the scene temperature overlaid
+        # Normalise the blackbody spectrum to the maximum transmission value
+        scene_radiance = scene_radiance / np.max(scene_radiance)
+        plt.figure()
+        plt.plot(wavelength_array, scene_radiance, label="Blackbody Radiance at 180K (normalised)")
+        for filter_obj in filter_assembly:
+            plt.plot(wavelength_array, filter_obj.transmission, label=f"Filter {filter_obj.number} ({filter_obj.name})")
+        plt.xlabel("Wavelength (um)")
+        plt.ylabel("Radiance / Transmission")
+        plt.title(f"{assembly['assembly_name']} Filter Transmission")
+        plt.legend()
+        plt.show()
 
 # Call the main program to start execution
 if __name__ == "__main__":
