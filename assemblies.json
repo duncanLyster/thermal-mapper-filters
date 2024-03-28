@@ -86,17 +86,17 @@
                 "filter_number": 17,
                 "filter_name": "Theoretical NaCl peak 8.5-9.5um",
                 "tdi_pixels": 100
+            },
+            {
+                "filter_number": 18,
+                "filter_name": "Mesh 100-200µm (Cardiff)",
+                "tdi_pixels": 100
             }
         ]
     },
     {
         "assembly_name": "Low temps",
         "filters": [
-            {
-                "filter_number": 13,
-                "filter_name": "CdTe 12.5-25um",
-                "tdi_pixels": 150
-            },
             {
                 "filter_number": 14,
                 "filter_name": "Mesh 25-50um",
@@ -105,6 +105,11 @@
             {
                 "filter_number": 15,
                 "filter_name": "Mesh 50-100um",
+                "tdi_pixels": 84
+            },
+            {
+                "filter_number": 18,
+                "filter_name": "Mesh 100-200um",
                 "tdi_pixels": 84
             }
         ]

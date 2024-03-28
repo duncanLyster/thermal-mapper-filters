@@ -96,11 +96,11 @@ def main():
     # Load filter assemblies
     assemblies = load_filter_assemblies("assemblies.json")
 
-    scene_temperature = 180
+    scene_temperature = 30
     scene_emissivity = 0.7
 
     # Preload the filter transmission data once
-    df = pd.read_csv("filter_transmission.csv", skiprows=1)
+    df = pd.read_csv("filter_transmission.csv", skiprows=2)
     wavelength_array = df.iloc[:, 0].values
 
 
@@ -136,7 +136,7 @@ def main():
         # Normalise the blackbody spectrum to the maximum transmission value
         scene_radiance = scene_radiance / np.max(scene_radiance)
         plt.figure()
-        plt.plot(wavelength_array, scene_radiance, label="Blackbody Radiance at 180K (normalised)")
+        plt.plot(wavelength_array, scene_radiance, label=f"Blackbody Radiance at {scene_temperature}K (normalised)")
         for filter_obj in filter_assembly:
             plt.plot(wavelength_array, filter_obj.transmission, label=f"Filter {filter_obj.number} ({filter_obj.name})")
         plt.xlabel("Wavelength (um)")
