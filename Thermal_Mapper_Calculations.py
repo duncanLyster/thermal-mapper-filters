@@ -100,49 +100,66 @@ def main():
     # Load filter assemblies
     assemblies = load_filter_assemblies("assemblies.json")
 
-    scene_temperature = 30
+    temperatures = [30, 45 ,60, 100, 140, 180]
     scene_emissivity = 0.7
 
-    # Preload the filter transmission data once
-    df = pd.read_csv("filter_transmission.csv", skiprows=2)
-    wavelength_array = df.iloc[:, 0].values
+    # Read the first two rows separately for filter names and numbers
+    with open("filter_transmission.csv", 'r') as f:
+        filter_names = next(f).strip().split(',')[1:]  # Skip the first entry (wavelength)
+        filter_numbers = next(f).strip().split(',')[1:]  # Skip the first entry (filter number)
 
+    # Load the rest of the CSV directly into a NumPy array for wavelengths and transmission data
+    csv_data = np.genfromtxt("filter_transmission.csv", delimiter=',', skip_header=2)
+    wavelength_array = csv_data[:, 0]  # Wavelengths
+    transmission_data = csv_data[:, 1:]  # Transmission data
 
-    # Load the filter assembly configuration from filter_assembly.json, assign to Filter objects
-    filter_assembly = []
+    # Now filter_numbers and filter_names are lists of strings, 
+    # if you need them as integers you can convert them like this:
+    filter_numbers = [int(num) for num in filter_numbers]
 
     for assembly in assemblies:
+        print(f"\n{assembly['assembly_name']}\n{'-'*50}")
         filter_assembly = []
-
-        print(f"\n{assembly['assembly_name']} at {scene_temperature}K\n{'-'*50}")
 
         # Create Filter objects for each filter in the current assembly
         for filter_data in assembly["filters"]:
+            filter_number = filter_data["filter_number"]
             filter_obj = Filter(filter_data["filter_number"], filter_data)
             filter_obj.tdi_pixels = filter_data["tdi_pixels"]
-            filter_obj.name = filter_data["filter_name"]
-            filter_obj.transmission = df.iloc[:, filter_obj.number].values / 100
+            filter_obj.name = filter_names[filter_number - 1] if (filter_number - 1) < len(filter_names) else "Unknown"
+            filter_obj.transmission = transmission_data[:, filter_number - 1] / 100
             filter_assembly.append(filter_obj)
 
-        # Calculate SNRs for the current assembly
-        scene_radiance = calculate_scene_radiance(scene_temperature, scene_emissivity, wavelength_array=wavelength_array)
-        
-        pixel_integration_time = 0.6  # Example value
+        pixel_integration_time = 0.6  # Calculated by hand for Nightingale
         overall_system_transmission = mirror_reflectivity**number_of_mirrors * detector_absorption
         SNR_factor = Dstar * detector_side_length * solid_angle * overall_system_transmission
 
-        for filter_obj in filter_assembly:
-            filter_obj.integrated_transmission = np.trapz(filter_obj.transmission * scene_radiance, wavelength_array)
-            filter_obj.signal_to_noise = SNR_factor * (pixel_integration_time * filter_obj.tdi_pixels)**0.5 * filter_obj.integrated_transmission
-            print(f"Filter {filter_obj.number:<4} {filter_obj.name:<20} {filter_obj.tdi_pixels:<3} px wide   SNR: {filter_obj.signal_to_noise:<.2f}")
+        snr_messages = []
 
-        # Plot the filter transmission for the current assembly with the normalised blackbody spectrum at the scene temperature overlaid
-        # Normalise the blackbody spectrum to the maximum transmission value
-        scene_radiance = scene_radiance / np.max(scene_radiance)
         plt.figure()
-        plt.plot(wavelength_array, scene_radiance, label=f"Blackbody Radiance at {scene_temperature}K (normalised)")
+
+        snr_table = []
+        for filter_obj in filter_assembly:
+            snr_row = [f"Filter {filter_obj.number:<4} {filter_obj.name:<35} {filter_obj.tdi_pixels:<5} px wide"]
+            for temp in temperatures:
+                scene_radiance = calculate_scene_radiance(temp, scene_emissivity, wavelength_array=wavelength_array)
+                filter_obj.integrated_transmission = np.trapz(filter_obj.transmission * scene_radiance, wavelength_array)
+                filter_obj.signal_to_noise = SNR_factor * (pixel_integration_time * filter_obj.tdi_pixels)**0.5 * filter_obj.integrated_transmission
+                snr_row.append(f"{temp}K: {filter_obj.signal_to_noise:<10.2f}")
+            snr_table.append(snr_row)
+
+        # Print SNR table
+        for row in snr_table:
+            print("{:<55} {}".format(row[0], " ".join(row[1:])))
+
+        for temp in temperatures:
+            scene_radiance = calculate_scene_radiance(temp, scene_emissivity, wavelength_array=wavelength_array)
+            normalised_radiance = scene_radiance / np.max(scene_radiance)
+            plt.plot(wavelength_array, normalised_radiance, 'grey', linestyle='--', label=f"{temp}K (normalised)")
+
         for filter_obj in filter_assembly:
             plt.plot(wavelength_array, filter_obj.transmission, label=f"Filter {filter_obj.number} ({filter_obj.name})")
+        
         plt.xlabel("Wavelength (um)")
         plt.ylabel("Radiance / Transmission")
         plt.title(f"{assembly['assembly_name']} Filter Transmission")
