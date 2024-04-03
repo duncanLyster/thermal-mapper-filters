@@ -1,35 +1,42 @@
 [
     {
-        "assembly_name": "Low temps",
+        "assembly_name": "Low Temps",
         "filters": [
             {
-                "filter_number": 14,
-                "tdi_pixels": 150
+                "filter_number": 3,
+                "tdi_pixels": 92
             },
             {
-                "filter_number": 15,
-                "tdi_pixels": 84
+                "filter_number": 4,
+                "tdi_pixels": 92
             },
             {
-                "filter_number": 18,
-                "tdi_pixels": 84
+                "filter_number": 5,
+                "tdi_pixels": 92
+            },
+            {
+                "filter_number": 7,
+                "tdi_pixels": 92
             }
         ]
     },
     {
-        "assembly_name": "High temps (placeholder)",
+        "assembly_name": "High Temps",
         "filters": [
             {
-                "filter_number": 13,
-                "tdi_pixels": 150
+                "filter_number": 1,
+                "tdi_pixels": 92
+            },{
+                "filter_number": 2,
+                "tdi_pixels": 92
             },
             {
-                "filter_number": 14,
-                "tdi_pixels": 150
+                "filter_number": 3,
+                "tdi_pixels": 92
             },
             {
-                "filter_number": 15,
-                "tdi_pixels": 84
+                "filter_number": 4,
+                "tdi_pixels": 92
             }
         ]
     },
@@ -37,32 +44,56 @@
         "assembly_name": "Salinity",
         "filters": [
             {
-                "filter_number": 13,
-                "tdi_pixels": 15
+                "filter_number": 10,
+                "tdi_pixels": 1
             },
             {
-                "filter_number": 12,
-                "tdi_pixels": 50
+                "filter_number": 8,
+                "tdi_pixels": 90
             },
             {
-                "filter_number": 17,
-                "tdi_pixels": 384
+                "filter_number": 9,
+                "tdi_pixels": 90
+            },
+            {
+                "filter_number": 2,
+                "tdi_pixels": 60
+            },
+            {
+                "filter_number": 3,
+                "tdi_pixels": 60
+            },
+            {
+                "filter_number": 4,
+                "tdi_pixels": 60
             }
         ]
     },
     {
-        "assembly_name": "Generalist (placeholder)",
+        "assembly_name": "Generalist",
         "filters": [
             {
-                "filter_number": 13,
+                "filter_number": 1,
                 "tdi_pixels": 150
             },
             {
-                "filter_number": 14,
+                "filter_number": 2,
                 "tdi_pixels": 150
             },
             {
-                "filter_number": 15,
+                "filter_number": 3,
+                "tdi_pixels": 84
+            },
+            {
+                "filter_number": 4,
+                "tdi_pixels": 84
+            },
+            {
+                "filter_number": 5,
+                "tdi_pixels": 84
+            },
+            {
+                "filter_number": 7,
                 "tdi_pixels": 84
             }
         ]

@@ -93,6 +93,13 @@ def calculate_scene_radiance(temperature, emissivity, wavelength_array):
 
     return scene_radiance
 
+def format_snr(value):
+    # Check if the value is essentially an integer
+    if value < 1.0:
+        return f"{value:<10.3g}"
+    else:
+        return f"{value:<10.2f}"
+
 def main():
     # Load the model parameters
     load_and_assign_model_parameters("instrument.json")
@@ -100,21 +107,27 @@ def main():
     # Load filter assemblies
     assemblies = load_filter_assemblies("assemblies.json")
 
-    temperatures = [30, 45 ,60, 100, 140, 180]
-    scene_emissivity = 0.7
+    temperatures = [30, 45 ,60, 100, 140, 180, 200]
+    scene_emissivity = 0.9
 
     # Read the first two rows separately for filter names and numbers
     with open("filter_transmission.csv", 'r') as f:
         filter_names = next(f).strip().split(',')[1:]  # Skip the first entry (wavelength)
         filter_numbers = next(f).strip().split(',')[1:]  # Skip the first entry (filter number)
 
-    # Load the rest of the CSV directly into a NumPy array for wavelengths and transmission data
-    csv_data = np.genfromtxt("filter_transmission.csv", delimiter=',', skip_header=2)
+    # Load the rest of the CSV directly into a pandas DataFrame for easier NaN handling
+    df = pd.read_csv("filter_transmission.csv", skiprows=2)
+    
+    # Check for NaN values and fill them with 0
+    df.fillna(0, inplace=True) 
+    
+    # Convert the DataFrame back into a NumPy array if necessary
+    csv_data = df.to_numpy()
     wavelength_array = csv_data[:, 0]  # Wavelengths
     transmission_data = csv_data[:, 1:]  # Transmission data
+    
 
-    # Now filter_numbers and filter_names are lists of strings, 
-    # if you need them as integers you can convert them like this:
+    # Convert filter numbers to integers
     filter_numbers = [int(num) for num in filter_numbers]
 
     for assembly in assemblies:
@@ -136,34 +149,52 @@ def main():
 
         snr_messages = []
 
-        plt.figure()
+        plt.figure(figsize=(10, 8))
 
         snr_table = []
         for filter_obj in filter_assembly:
-            snr_row = [f"Filter {filter_obj.number:<4} {filter_obj.name:<35} {filter_obj.tdi_pixels:<5} px wide"]
+            # Skip adding SNR information for filters where tdi_pixels is 1
+            if filter_obj.tdi_pixels == 1:
+                continue
+            snr_row = [f"Filter {filter_obj.number:<4} {filter_obj.name:<35} Width (px): {filter_obj.tdi_pixels:<5}"]
             for temp in temperatures:
                 scene_radiance = calculate_scene_radiance(temp, scene_emissivity, wavelength_array=wavelength_array)
                 filter_obj.integrated_transmission = np.trapz(filter_obj.transmission * scene_radiance, wavelength_array)
                 filter_obj.signal_to_noise = SNR_factor * (pixel_integration_time * filter_obj.tdi_pixels)**0.5 * filter_obj.integrated_transmission
-                snr_row.append(f"{temp}K: {filter_obj.signal_to_noise:<10.2f}")
+                formatted_snr = format_snr(filter_obj.signal_to_noise)
+                snr_row.append(f"{temp}K: {formatted_snr}")
             snr_table.append(snr_row)
 
         # Print SNR table
         for row in snr_table:
             print("{:<55} {}".format(row[0], " ".join(row[1:])))
 
-        for temp in temperatures:
+        for filter_obj in filter_assembly:
+            linestyle = '--' if filter_obj.tdi_pixels == 1 else '-'
+            mask = filter_obj.transmission > 0 if filter_obj.tdi_pixels == 1 else slice(None)
+            plt.plot(wavelength_array[mask], filter_obj.transmission[mask], label=f"{filter_obj.name}", linestyle=linestyle)
+
+        # Generate the temperature label string
+        temperature_labels = ', '.join([f"{temp}K" for temp in temperatures]) + "\nnormalised blackbody curves"
+
+        # Plot the temperatures with a single label
+        for index, temp in enumerate(temperatures):
             scene_radiance = calculate_scene_radiance(temp, scene_emissivity, wavelength_array=wavelength_array)
             normalised_radiance = scene_radiance / np.max(scene_radiance)
-            plt.plot(wavelength_array, normalised_radiance, 'grey', linestyle='--', label=f"{temp}K (normalised)")
+            
+            if index == 0:
+                # Only the first plot gets the consolidated label
+                plt.plot(wavelength_array, normalised_radiance, 'lightgrey', linestyle=':', label=temperature_labels)
+            else:
+                # Other plots do not get a label
+                plt.plot(wavelength_array, normalised_radiance, 'lightgrey', linestyle=':')
 
-        for filter_obj in filter_assembly:
-            plt.plot(wavelength_array, filter_obj.transmission, label=f"Filter {filter_obj.number} ({filter_obj.name})")
-        
         plt.xlabel("Wavelength (um)")
         plt.ylabel("Radiance / Transmission")
-        plt.title(f"{assembly['assembly_name']} Filter Transmission")
-        plt.legend()
+        plt.xscale('log')
+        plt.title(f"{assembly['assembly_name']} Filter Assembly")
+        plt.subplots_adjust(bottom=0.2)  # Adjust the bottom margin
+        plt.legend(loc='upper center', bbox_to_anchor=(0.5, -0.15), ncol=3)
         plt.show()
 
 # Call the main program to start execution
