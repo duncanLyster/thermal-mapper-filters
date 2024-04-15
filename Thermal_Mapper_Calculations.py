@@ -12,6 +12,7 @@ import numpy as np
 import json
 import pandas as pd
 import matplotlib.pyplot as plt
+from matplotlib.ticker import LogLocator, FuncFormatter
     
 
 # Initalise global variables (to be assigned later by the model parameters file)
@@ -49,6 +50,9 @@ class Filter:
         self.signal_to_noise = None
         self.tdi_pixels = None
         self.name = None
+
+def tick_formatter(val, pos):
+    return f"{val:g}"
 
 def load_and_assign_model_parameters(json_filepath):
     with open(json_filepath, "r") as file:
@@ -107,7 +111,8 @@ def main():
     # Load filter assemblies
     assemblies = load_filter_assemblies("assemblies.json")
 
-    temperatures = [30, 45 ,60, 100, 140, 180, 200]
+    #temperatures = [30, 45, 60, 100, 140, 180, 200]
+    temperatures = [30, 60, 180, 200] # Stripped back for graphs
     scene_emissivity = 0.9
 
     # Read the first two rows separately for filter names and numbers
@@ -115,23 +120,31 @@ def main():
         filter_names = next(f).strip().split(',')[1:]  # Skip the first entry (wavelength)
         filter_numbers = next(f).strip().split(',')[1:]  # Skip the first entry (filter number)
 
-    # Load the rest of the CSV directly into a pandas DataFrame for easier NaN handling
+    # Load the rest of the CSV into a pandas DataFrame
     df = pd.read_csv("filter_transmission.csv", skiprows=2)
-    
-    # Check for NaN values and fill them with 0
-    df.fillna(0, inplace=True) 
-    
-    # Convert the DataFrame back into a NumPy array if necessary
+    df.fillna(0, inplace=True)  # Handle NaNs
     csv_data = df.to_numpy()
     wavelength_array = csv_data[:, 0]  # Wavelengths
     transmission_data = csv_data[:, 1:]  # Transmission data
-    
 
-    # Convert filter numbers to integers
     filter_numbers = [int(num) for num in filter_numbers]
 
-    for assembly in assemblies:
+    # Determine subplot grid size and setup subplots
+    num_assemblies = len(assemblies)
+    cols = 2
+    rows = (num_assemblies + cols - 1) // cols  # Ensure enough rows
+    fig, axs = plt.subplots(rows, cols, figsize=(5 * cols, 4 * rows))
+    axs = axs.flatten()  # Flatten to simplify indexing
+
+    # Define colors for each filter for consistency across plots
+    colors = plt.cm.tab10(np.linspace(0, 1, len(filter_names)))  # Adjust as needed based on the number of filters
+
+    # Dictionary to accumulate unique legend handles and labels across all subplots
+    unique_legend_entries = {}
+
+    for ax, assembly in zip(axs, assemblies):
         print(f"\n{assembly['assembly_name']}\n{'-'*50}")
+
         filter_assembly = []
 
         # Create Filter objects for each filter in the current assembly
@@ -147,14 +160,11 @@ def main():
         overall_system_transmission = mirror_reflectivity**number_of_mirrors * detector_absorption
         SNR_factor = Dstar * detector_side_length * solid_angle * overall_system_transmission
 
-        snr_messages = []
-
-        plt.figure(figsize=(10, 8))
-
         snr_table = []
+
+
         for filter_obj in filter_assembly:
-            # Skip adding SNR information for filters where tdi_pixels is 1
-            if filter_obj.tdi_pixels == 1:
+            if filter_obj.tdi_pixels == 1: # Skip adding SNR information where tdi_pixels is 1 (e.g emission spectra)
                 continue
             snr_row = [f"Filter {filter_obj.number:<4} {filter_obj.name:<35} Width (px): {filter_obj.tdi_pixels:<5}"]
             for temp in temperatures:
@@ -170,9 +180,14 @@ def main():
             print("{:<55} {}".format(row[0], " ".join(row[1:])))
 
         for filter_obj in filter_assembly:
+            color = colors[filter_obj.number - 1] # Assign a color based on the filter number
             linestyle = '--' if filter_obj.tdi_pixels == 1 else '-'
+            label = f"{filter_obj.name}"
             mask = filter_obj.transmission > 0 if filter_obj.tdi_pixels == 1 else slice(None)
-            plt.plot(wavelength_array[mask], filter_obj.transmission[mask], label=f"{filter_obj.name}", linestyle=linestyle)
+            line, = ax.plot(wavelength_array[mask], filter_obj.transmission[mask], color=color, label=label, linestyle=linestyle)
+
+            if label not in unique_legend_entries:  # Avoid duplicate legend entries
+                unique_legend_entries[label] = line
 
         # Generate the temperature label string
         temperature_labels = ', '.join([f"{temp}K" for temp in temperatures]) + "\nnormalised blackbody curves"
@@ -184,18 +199,23 @@ def main():
             
             if index == 0:
                 # Only the first plot gets the consolidated label
-                plt.plot(wavelength_array, normalised_radiance, 'lightgrey', linestyle=':', label=temperature_labels)
+                ax.plot(wavelength_array, normalised_radiance, 'lightgrey', linestyle=':', label=temperature_labels)
             else:
                 # Other plots do not get a label
-                plt.plot(wavelength_array, normalised_radiance, 'lightgrey', linestyle=':')
+                ax.plot(wavelength_array, normalised_radiance, 'lightgrey', linestyle=':')
 
-        plt.xlabel("Wavelength (um)")
-        plt.ylabel("Radiance / Transmission")
-        plt.xscale('log')
-        plt.title(f"{assembly['assembly_name']} Filter Assembly")
-        plt.subplots_adjust(bottom=0.2)  # Adjust the bottom margin
-        plt.legend(loc='upper center', bbox_to_anchor=(0.5, -0.15), ncol=3)
-        plt.show()
+        ax.set_xlabel("Wavelength (µm)", fontsize=14)
+        ax.set_ylabel("Transmission", fontsize=14)
+        ax.set_xscale('log')
+        ax.tick_params(axis='both', which='major', labelsize=13)
+        ax.xaxis.set_major_locator(LogLocator(base=10.0, subs=(1.0, 2.0, 5.0)))
+        ax.xaxis.set_major_formatter(FuncFormatter(tick_formatter))
+        ax.set_title(f"{assembly['assembly_name']} Filter Assembly", fontsize=15)
+    
+    fig.subplots_adjust(bottom=0.1)  # Adjust this value as needed to make space for the legend
+    fig.legend(unique_legend_entries.values(), unique_legend_entries.keys(), loc='lower center', ncol=3, bbox_to_anchor=(0.5, 0.01), fontsize=12)
+    plt.tight_layout(rect=[0, 0.1, 1, 0.95])  # Adjust the second value as needed based on the space required for the legend
+    plt.show()
 
 # Call the main program to start execution
 if __name__ == "__main__":

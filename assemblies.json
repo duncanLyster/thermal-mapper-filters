@@ -15,7 +15,7 @@
                 "tdi_pixels": 92
             },
             {
-                "filter_number": 7,
+                "filter_number": 6,
                 "tdi_pixels": 92
             }
         ]
@@ -44,18 +44,6 @@
         "assembly_name": "Salinity",
         "filters": [
             {
-                "filter_number": 10,
-                "tdi_pixels": 1
-            },
-            {
-                "filter_number": 8,
-                "tdi_pixels": 90
-            },
-            {
-                "filter_number": 9,
-                "tdi_pixels": 90
-            },
-            {
                 "filter_number": 2,
                 "tdi_pixels": 60
             },
@@ -66,6 +54,18 @@
             {
                 "filter_number": 4,
                 "tdi_pixels": 60
+            },
+            {
+                "filter_number": 7,
+                "tdi_pixels": 60
+            },
+            {
+                "filter_number": 8,
+                "tdi_pixels": 120
+            },
+            {
+                "filter_number": 9,
+                "tdi_pixels": 1
             }
         ]
     },
@@ -74,27 +74,27 @@
         "filters": [
             {
                 "filter_number": 1,
-                "tdi_pixels": 150
+                "tdi_pixels": 60
             },
             {
                 "filter_number": 2,
-                "tdi_pixels": 150
+                "tdi_pixels": 60
             },
             {
                 "filter_number": 3,
-                "tdi_pixels": 84
+                "tdi_pixels": 60
             },
             {
                 "filter_number": 4,
-                "tdi_pixels": 84
+                "tdi_pixels": 60
             },
             {
                 "filter_number": 5,
-                "tdi_pixels": 84
+                "tdi_pixels": 60
             },
             {
-                "filter_number": 7,
-                "tdi_pixels": 84
+                "filter_number": 6,
+                "tdi_pixels": 60
             }
         ]
     }
