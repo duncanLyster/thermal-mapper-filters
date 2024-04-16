@@ -1,11 +1,22 @@
-''' 
-This script is built for performing filter calculations for the Enceladus Thermal Mapper (ETM) instrument.
-It reads in mission configuration info from a .json file, filter assembly configuration info from a .json file, and a .csv file containing the filter transmission data.
-It then calculates the filter transmission for each filter assembly, and signal-to-noise ratio for each filter assembly in a range of wavelengths/scenarios. 
+'''
+This script conducts optical filter analysis for thermal mapping instruments. It was built for the Enceladus Thermal Mapper proposal but can 
+be used for any multi-spectral thermal instrument. 
 
-To Do: 
-Read names from .csv file instead of .json. 
-Make .json more readable.
+It executes several key functions:
+
+1. Reads mission configuration from 'instrument_parameters.json', detailing properties like detector characteristics
+   and telescope specifications.
+2. Loads filter assembly configurations from 'assemblies.json' and transmission data from 'ETM_filter_transmission_profile_data.csv'.
+3. Computes the transmission efficiency for each filter in different assemblies across a specified range of wavelengths.
+4. Calculates the signal-to-noise ratio (SNR) for each filter under multiple thermal scenarios, using the Planck radiation formula
+   to simulate scene radiance at various temperatures.
+5. Visualises the filter transmissions and SNR values across different setups, aiding in the assessment of filter performance
+   in potential observational conditions.
+
+Outputs include graphical representations of filter characteristics and a detailed SNR analysis for decision-making regarding
+instrument design and mission planning.
+
+Author: Duncan Lyster
 '''
 
 import numpy as np
@@ -106,7 +117,7 @@ def format_snr(value):
 
 def main():
     # Load the model parameters
-    load_and_assign_model_parameters("instrument.json")
+    load_and_assign_model_parameters("instrument_parameters.json")
 
     # Load filter assemblies
     assemblies = load_filter_assemblies("assemblies.json")
@@ -116,12 +127,12 @@ def main():
     scene_emissivity = 0.9
 
     # Read the first two rows separately for filter names and numbers
-    with open("filter_transmission.csv", 'r') as f:
+    with open("ETM_filter_transmission_profile_data.csv", 'r') as f:
         filter_names = next(f).strip().split(',')[1:]  # Skip the first entry (wavelength)
         filter_numbers = next(f).strip().split(',')[1:]  # Skip the first entry (filter number)
 
     # Load the rest of the CSV into a pandas DataFrame
-    df = pd.read_csv("filter_transmission.csv", skiprows=2)
+    df = pd.read_csv("ETM_filter_transmission_profile_data.csv", skiprows=2)
     df.fillna(0, inplace=True)  # Handle NaNs
     csv_data = df.to_numpy()
     wavelength_array = csv_data[:, 0]  # Wavelengths

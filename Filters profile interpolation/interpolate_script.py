@@ -1,3 +1,16 @@
+'''
+This script loads spectral data at a lower resolution than required for Thermal_Mapper_Calculations.py from a CSV file, performs 
+linear interpolation to adjust the wavelength range, and ensures all values are within specified limits. It then corrects any interpolated 
+emissivity values that are negative to zero, and saves the new interpolated dataset to another CSV file. The key operations include:
+- Loading data from some 'spectrum.csv' - change file name as required.
+- Adjusting wavelength bounds to fit within the 5 to 250 range. (This can be changed as needed.)
+- Interpolating emissivities over a finely spaced wavelength grid of 0.01 increments.
+- Setting negative emissivities to zero after interpolation.
+- Saving the resulting data to 'interpolated_spectral_data.csv'. (Change file name as needed.)
+
+Author: Duncan Lyster
+'''
+
 import numpy as np
 import pandas as pd
 from scipy.interpolate import interp1d
@@ -32,4 +45,4 @@ interpolated_data = pd.DataFrame({
     'Wavelength': new_wavelengths,
     'Emissivity': new_emissivities
 })
-interpolated_data.to_csv('interpolated_Na_Cl_data.csv', index=False)
+interpolated_data.to_csv('interpolated_spectral_data.csv', index=False)
