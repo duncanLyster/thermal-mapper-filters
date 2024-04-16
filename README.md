@@ -26,7 +26,7 @@ To run the main filter profile generator:
 python model_filter_profile_generator.py
 
 For interpolation of filter profiles:
-cd Filters Profile Interpolation
+cd filter_profile_interpolation
 python interpolate_script.py
 
 To calculate SNRs and generate visual outputs:
