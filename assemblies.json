@@ -1,0 +1,40 @@
+[
+    {
+        "assembly_name": "Assembly 1",
+        "filters": [
+            {
+                "filter_number": 1,
+                "tdi_pixels": 92
+            },
+            {
+                "filter_number": 2,
+                "tdi_pixels": 92
+            },
+            {
+                "filter_number": 3,
+                "tdi_pixels": 92
+            }
+        ]
+    },
+    {
+        "assembly_name": "Salinity focused",
+        "filters": [
+            {
+                "filter_number": 2,
+                "tdi_pixels": 60
+            },
+            {
+                "filter_number": 3,
+                "tdi_pixels": 120
+            },
+            {
+                "filter_number": 1,
+                "tdi_pixels": 60
+            },
+            {
+                "filter_number": 4,
+                "tdi_pixels": 1
+            }
+        ]
+    }
+]

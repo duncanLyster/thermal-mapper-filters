@@ -1,0 +1,28 @@
+{
+  "detector_properties": {
+    "wavenumber_min": 33.3,
+    "wavenumber_max": 1500,
+    "wavenumber_unit": "cm^-1",
+    "spectral_resolution": 0.01,
+    "Dstar": 1E6,
+    "detector_absorption": 0.8,
+    "detector_fnumber": 1.2,
+    "detector_side_length": 100.0E-6,
+    "telescope_diameter": 0.1,
+    "fov_horizontal_deg": 2.0,
+    "fov_vertical_deg": 2.0,
+    "mirror_reflectivity": 0.96,
+    "number_of_mirrors": 8.0,
+    "solid_angle": 0.5
+  }, 
+  "orbital_properties": {
+    "latitude_deg": -90.0,
+    "longitude_deg": 145.0,
+    "altitude_m": 149.0E3,
+    "pointing_azimuth_deg": 0.0,
+    "pointing_elevation_deg": 0.0,
+    "roll_deg": 0.0,
+    "target_mass_kg": 1.08E20,
+    "target_radius_m": 252.1E3
+  }
+} 
